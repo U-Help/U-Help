@@ -9,5 +9,11 @@ public class AddaddrActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addaddr);
+        _CollectorActivity.addActivity(this);
+    }
+    @Override
+    protected void onDestroy(){
+        _CollectorActivity.removeActivity(this);
+        super.onDestroy();
     }
 }

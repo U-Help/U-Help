@@ -10,6 +10,7 @@ public class HelpandReflectActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_helpand_reflect);
+        _CollectorActivity.addActivity(this);
 
         TextView text = (TextView) this.findViewById(R.id.text);
         String str = "注册登录\n" +
@@ -30,5 +31,10 @@ public class HelpandReflectActivity extends AppCompatActivity {
                 "Q:如何阻止我的个人资料和快递信息被陌生人获取？\n" +
                 "A:我们快递信息进行了严格的加密，只有接单人才能获取您的快递信息，其他非接单用户无法查看到您快递的详细信息。\n";
         text.setText(str);
+    }
+    @Override
+    protected void onDestroy(){
+        _CollectorActivity.removeActivity(this);
+        super.onDestroy();
     }
 }

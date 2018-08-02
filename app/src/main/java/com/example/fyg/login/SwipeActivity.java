@@ -18,6 +18,7 @@ public class SwipeActivity extends Activity implements SwipeRefreshLayout.OnRefr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        _CollectorActivity.addActivity(this);
 
         mListView = (ListView) findViewById(R.id.listview);
         /**
@@ -62,5 +63,10 @@ public class SwipeActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
             }
         }, 3000);
+    }
+    @Override
+    protected void onDestroy(){
+        _CollectorActivity.removeActivity(this);
+        super.onDestroy();
     }
 }

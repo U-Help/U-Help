@@ -39,8 +39,7 @@ public class HelpGetActivity extends Activity implements SwipeRefreshLayout.OnRe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_help_get);
-
-        getInfo();
+        _CollectorActivity.addActivity(this);
 
         mListView = (ListView) findViewById(R.id.listview);
         /**
@@ -59,113 +58,28 @@ public class HelpGetActivity extends Activity implements SwipeRefreshLayout.OnRe
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(HelpGetActivity.this, i+1+"被单击了", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(HelpGetActivity.this, DetailActivity.class));
-            }
-        });
-    }
-
-    public ArrayList<String> getInfo(){
-        OkHttpClient client = new OkHttpClient();
-        User user=new User();
-        int i=user.id;
-        String id=Integer.toString(i);
-        String token=user.token;
-
-        HashMap<String, String> map = new HashMap<>();
-        map.put("offset","0");
-        map.put("id", id);
-        map.put("token", token);
-        JSONObject jsonObject = new JSONObject(map);
-        String jsonStr = jsonObject.toString();
-        RequestBody body = RequestBody.create(JSON, jsonStr);
-        Request request = new Request.Builder()
-                .url("http://47.100.116.160:5000/item/hall")
-                .post(body)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Looper.prepare();
-                Toast.makeText(HelpGetActivity.this, "未连接到服务器", Toast.LENGTH_LONG).show();
-                Looper.loop();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    boolean flag = false;
-                    System.out.println("1");
-                    List<Order> orders=new ArrayList<Order>();
-                    try {
-                        String str = response.body().string();
-                        System.out.println("1");
-
-                        JSONObject jsonObject = new JSONObject(str);
-                        System.out.println("1");
-                        String state=jsonObject.getString("state");
-                        System.out.println("1");
-
-                        if (state.equals("success")) {
-                            flag=true;
-                            JSONArray jsonArray=jsonObject.getJSONArray("data");
-                            list.add("  收货时间      取货地点     收货地点");
-                            for(int i = 0;i < jsonArray.length();i++){
-                                JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
-                                System.out.println("1");
-                                Order order=new Order();
-                                System.out.println("1");
-                                order.setDstplace(jsonObject1.getString("dstplace"));
-                                System.out.println(order.dstplace);
-                                order.setIs_available(jsonObject1.getString("is_available"));
-                                System.out.println(order.is_available);
-                                order.setItem_id(jsonObject1.getString("item_id"));
-                                System.out.println(order.item_id);
-                                order.setPhone(jsonObject1.getString("phone"));
-                                System.out.println(order.phone);
-                                order.setPrice(jsonObject1.getString("price"));
-                                System.out.println(order.price);
-                                order.setProp_time(jsonObject1.getString("prop_time"));
-                                System.out.println(order.prop_time);
-                                order.setRece_time(jsonObject1.getString("rece_time"));
-                                System.out.println(order.rece_time);
-                                order.setRev_password(jsonObject1.getString("rev_password"));
-                                System.out.println(order.rev_password);
-                                order.setSize(jsonObject1.getString("size"));
-                                System.out.println(order.size);
-                                order.setSrcplace(jsonObject1.getString("srcplace"));
-                                System.out.println(order.srcplace);
-                                orders.add(order);
-                                list.add(i+1+"."+orders.get(i).rece_time+"     "+orders.get(i).srcplace+"     "+orders.get(i).dstplace);
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    if (flag) {
-                        Looper.prepare();
-                        Toast.makeText(HelpGetActivity.this, "获取订单成功", Toast.LENGTH_LONG).show();
-                        Looper.loop();
-                    } else {
-                        Looper.prepare();
-                        Toast.makeText(HelpGetActivity.this, "获取订单失败", Toast.LENGTH_LONG).show();
-                        Looper.loop();
-                    }
-                } else {
-                    Looper.prepare();
-                    Toast.makeText(HelpGetActivity.this, "服务器未响应" + response.body().string(), Toast.LENGTH_LONG).show();
-                    Looper.loop();
+                if(i>0){
+                    User user=new User();
+                    user.num=i-1;
+                    Toast.makeText(HelpGetActivity.this, i + "被单击了", Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(HelpGetActivity.this, DetailActivity.class));
                 }
             }
         });
-        return list;
     }
 
     private ArrayList<String> getData() {
-        /*list.add("  收货时间      取货地点     收货地点");
-        list.add("1."+orders.get(1).rece_time+"     "+orders.get(1).srcplace+"     "+orders.get(1).dstplace);
+        Order order=new Order();
+        //System.out.println(order.length);
+        if(order.length==0) {
+            list.add("暂时无订单");
+            return list;
+        }
+        list.add("  收货时间          取货地点        收货地点");
+        for(int i=0;i<order.length;i++){
+            list.add(i+1+"."+order.orders[i].rece_time+"       "+order.orders[i].srcplace+"       "+order.orders[i].dstplace);
+        }
+        /*list.add("1."+orders.get(1).rece_time+"     "+orders.get(1).srcplace+"     "+orders.get(1).dstplace);
         list.add("An Android Developer");
         list.add("http://weibo.com/mcxiaobing");
         list.add("http://git.oschina.net/MCXIAOBING");
@@ -190,5 +104,132 @@ public class HelpGetActivity extends Activity implements SwipeRefreshLayout.OnRe
 
             }
         }, 3000);
+        new Handler().post(new Runnable() {
+           @Override
+           public void run() {
+               //获取数据
+               refreshData();
+               refreshData();
+               mSwipeLayout.setRefreshing(false);
+           }
+        });
+    }
+
+    private void refreshData() {
+        Order order=new Order();
+        getInfo();
+        list.clear();
+        if(order.length==0){
+            list.add("暂时无订单");
+            mListView.setAdapter(adapter);
+            return;
+        }
+        list.add("  收货时间          取货地点        收货地点");
+        for(int i=0;i<''order.length;i++){
+            list.add(i+1+"."+order.orders[i].rece_time+"       "+order.orders[i].srcplace+"       "+order.orders[i].dstplace);
+        }
+        mListView.setAdapter(adapter);
+        /*list.add(0, String.valueOf((int) (Math.random() * 10)));
+        adapter.notifyDataSetChanged();*/
+    }
+
+    public void getInfo(){
+        OkHttpClient client = new OkHttpClient();
+        User user=new User();
+        int i=user.id;
+        String id=Integer.toString(i);
+        String token=user.token;
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("offset","0");
+        map.put("id", id);
+        map.put("token", token);
+        JSONObject jsonObject = new JSONObject(map);
+        String jsonStr = jsonObject.toString();
+        RequestBody body = RequestBody.create(JSON, jsonStr);
+        Request request = new Request.Builder()
+                .url("http://47.100.116.160:5000/item/hall")
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Looper.prepare();
+                Looper.loop();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                int i;
+                if (response.isSuccessful()) {
+                    boolean flag = false;
+                    try {
+                        String str = response.body().string();
+
+                        JSONObject jsonObject = new JSONObject(str);
+                        String state=jsonObject.getString("state");
+
+                        if (state.equals("success")) {
+                            flag=true;
+                            Order order=new Order();
+                            order.length=0;
+                            JSONArray jsonArray=jsonObject.getJSONArray("data");
+                            for(i = 0;i < jsonArray.length();i++){
+                                Order s=new Order();
+                                JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
+                                s.setDstplace(jsonObject1.getString("dstplace"));
+                                //System.out.println(s.dstplace);
+                                s.setIs_available(jsonObject1.getString("is_available"));
+                                //System.out.println(s.is_available);
+                                s.setItem_id(jsonObject1.getString("item_id"));
+                                //System.out.println(s.item_id);
+                                s.setPhone(jsonObject1.getString("phone"));
+                                //System.out.println(s.phone);
+                                s.setPrice(jsonObject1.getString("price"));
+                                //System.out.println(s.price);
+                                s.setProp_time(jsonObject1.getString("prop_time"));
+                                //System.out.println(s.prop_time);
+                                s.setRece_time(jsonObject1.getString("rece_time"));
+                                //System.out.println(s.rece_time);
+                                s.setRev_password(jsonObject1.getString("rev_password"));
+                                //System.out.println(s.rev_password);
+                                s.setSize(jsonObject1.getString("size"));
+                                //System.out.println(s.size);
+                                s.setSrcplace(jsonObject1.getString("srcplace"));
+                                //System.out.println(s.srcplace);
+                                s.setUsername(jsonObject1.getString("username"));
+                                s.setMsg(jsonObject1.getString("msg"));
+                                order.orders[i]=s;
+                                order.length=i+1;
+                            }
+                            System.out.println(order.length);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    if (flag) {
+                        Looper.prepare();
+                        //Toast.makeText(GetActivity.this, "获取订单成功", Toast.LENGTH_LONG).show();
+                        Looper.loop();
+                    } else {
+                        Looper.prepare();
+                        //Toast.makeText(GetActivity.this, "获取订单失败", Toast.LENGTH_LONG).show();
+                        Looper.loop();
+                    }
+                } else {
+                    Looper.prepare();
+                    //Toast.makeText(GetActivity.this, "服务器未响应" + response.body().string(), Toast.LENGTH_LONG).show();
+                    Looper.loop();
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy(){
+        _CollectorActivity.removeActivity(this);
+        super.onDestroy();
     }
 }

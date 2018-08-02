@@ -15,6 +15,8 @@ public class SettingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
+        _CollectorActivity.addActivity(this);
+
         btnPasswordChange=findViewById(R.id.btnPasswordchange);
         btnPasswordChange.setOnClickListener(new OnClickListener(){
             public void onClick(View v){
@@ -33,5 +35,10 @@ public class SettingActivity extends AppCompatActivity {
                 startActivity(new Intent(SettingActivity.this,ShareActivity.class));
             }
         });
+    }
+    @Override
+    protected void onDestroy(){
+        _CollectorActivity.removeActivity(this);
+        super.onDestroy();
     }
 }

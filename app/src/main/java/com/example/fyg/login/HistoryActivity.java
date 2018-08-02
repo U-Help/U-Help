@@ -22,6 +22,7 @@ public class HistoryActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
+        _CollectorActivity.addActivity(this);
 
         mListView = (ListView) findViewById(R.id.listview);
         /**
@@ -45,5 +46,10 @@ public class HistoryActivity extends Activity {
         list.add("取件    2018.7.13");
         list.add("帮忙    2018.7.12");
         return list;
+    }
+    @Override
+    protected void onDestroy(){
+        _CollectorActivity.removeActivity(this);
+        super.onDestroy();
     }
 }

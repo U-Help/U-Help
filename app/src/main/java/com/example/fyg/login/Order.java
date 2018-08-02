@@ -1,5 +1,8 @@
 package com.example.fyg.login;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Order {
     public String rece_time;
     public String phone;
@@ -11,6 +14,9 @@ public class Order {
     public String is_available;
     public String prop_time;
     public String srcplace;
+    public String username;
+    public String msg;
+    public String email;
     public void setRece_time(String rece_time){
         this.rece_time=rece_time;
     }
@@ -50,4 +56,20 @@ public class Order {
     public void setSrcplace(String srcplace){
         this.srcplace=srcplace;
     }
+
+    public void setUsername(String username){
+        this.username=username;
+    }
+
+    public void setMsg(String msg){
+        this.msg=msg;
+    }
+
+    public void setEmail(String email){
+        this.email=email;
+    }
+
+    public static Order[] orders=new Order[1000];
+
+    public static int length;
 }

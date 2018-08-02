@@ -2,6 +2,7 @@ package com.example.fyg.login;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -14,16 +15,36 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.HashMap;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class GetActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private Button btn_get;
     private Button btn_help;
     private Button btn_status;
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get);
+        _CollectorActivity.addActivity(this);
+
+        getInfo();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -121,5 +142,105 @@ public class GetActivity extends AppCompatActivity implements NavigationView.OnN
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+    @Override
+    protected void onDestroy(){
+        _CollectorActivity.removeActivity(this);
+        super.onDestroy();
+    }
+
+    public void getInfo(){
+        OkHttpClient client = new OkHttpClient();
+        User user=new User();
+        int i=user.id;
+        String id=Integer.toString(i);
+        String token=user.token;
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("offset","0");
+        map.put("id", id);
+        map.put("token", token);
+        JSONObject jsonObject = new JSONObject(map);
+        String jsonStr = jsonObject.toString();
+        RequestBody body = RequestBody.create(JSON, jsonStr);
+        Request request = new Request.Builder()
+                .url("http://47.100.116.160:5000/item/hall")
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Looper.prepare();
+                Looper.loop();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                int i;
+                if (response.isSuccessful()) {
+                    boolean flag = false;
+                    try {
+                        String str = response.body().string();
+
+                        JSONObject jsonObject = new JSONObject(str);
+                        String state=jsonObject.getString("state");
+
+                        if (state.equals("success")) {
+                            flag=true;
+                            Order order=new Order();
+                            JSONArray jsonArray=jsonObject.getJSONArray("data");
+                            for(i = 0;i < jsonArray.length();i++){
+                                Order s=new Order();
+                                order.length=0;
+                                JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
+                                s.setDstplace(jsonObject1.getString("dstplace"));
+                                //System.out.println(s.dstplace);
+                                s.setIs_available(jsonObject1.getString("is_available"));
+                                //System.out.println(s.is_available);
+                                s.setItem_id(jsonObject1.getString("item_id"));
+                                //System.out.println(s.item_id);
+                                s.setPhone(jsonObject1.getString("phone"));
+                                //System.out.println(s.phone);
+                                s.setPrice(jsonObject1.getString("price"));
+                                //System.out.println(s.price);
+                                s.setProp_time(jsonObject1.getString("prop_time"));
+                                //System.out.println(s.prop_time);
+                                s.setRece_time(jsonObject1.getString("rece_time"));
+                                //System.out.println(s.rece_time);
+                                s.setRev_password(jsonObject1.getString("rev_password"));
+                                //System.out.println(s.rev_password);
+                                s.setSize(jsonObject1.getString("size"));
+                                //System.out.println(s.size);
+                                s.setSrcplace(jsonObject1.getString("srcplace"));
+                                //System.out.println(s.srcplace);
+                                s.setUsername(jsonObject1.getString("username"));
+                                s.setMsg(jsonObject1.getString("msg"));
+                                s.setEmail(jsonObject1.getString("email"));
+                                order.orders[i]=s;
+                                order.length=i+1;
+                            }
+                            System.out.println(order.length);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    if (flag) {
+                        Looper.prepare();
+                        //Toast.makeText(GetActivity.this, "获取订单成功", Toast.LENGTH_LONG).show();
+                        Looper.loop();
+                    } else {
+                        Looper.prepare();
+                        //Toast.makeText(GetActivity.this, "获取订单失败", Toast.LENGTH_LONG).show();
+                        Looper.loop();
+                    }
+                } else {
+                    Looper.prepare();
+                    //Toast.makeText(GetActivity.this, "服务器未响应" + response.body().string(), Toast.LENGTH_LONG).show();
+                    Looper.loop();
+                }
+            }
+        });
     }
 }

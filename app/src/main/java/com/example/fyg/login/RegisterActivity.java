@@ -39,6 +39,8 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        _CollectorActivity.addActivity(this);
+
         btnRegister=findViewById(R.id.btnregister);
         editEmail=findViewById(R.id.editEmail);
         editUsername=findViewById(R.id.editUsename);
@@ -265,7 +267,7 @@ public class RegisterActivity extends AppCompatActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     Looper.prepare();
-                    Toast.makeText(RegisterActivity.this, response.body().string(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_LONG).show();
                     Looper.loop();
                 } else {
                     Looper.prepare();
@@ -275,6 +277,11 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
         finish();
+    }
+    @Override
+    protected void onDestroy(){
+        _CollectorActivity.removeActivity(this);
+        super.onDestroy();
     }
 }
 

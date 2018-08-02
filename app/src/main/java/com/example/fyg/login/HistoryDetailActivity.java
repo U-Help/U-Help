@@ -10,6 +10,7 @@ public class HistoryDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history_detail);
+        _CollectorActivity.addActivity(this);
 
         TextView text = (TextView) this.findViewById(R.id.textView10);
         String str = "日期：\n" +
@@ -18,5 +19,10 @@ public class HistoryDetailActivity extends AppCompatActivity {
                 "货物主人：\n" +
                 "交易价格：\n";
         text.setText(str);
+    }
+    @Override
+    protected void onDestroy(){
+        _CollectorActivity.removeActivity(this);
+        super.onDestroy();
     }
 }

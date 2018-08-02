@@ -48,6 +48,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
+        _CollectorActivity.addActivity(this);
 
         a1 = (EditText)findViewById(R.id.a1);
         a2 = (TextInputEditText) findViewById(R.id.a2);
@@ -223,5 +224,10 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+    @Override
+    protected void onDestroy(){
+        _CollectorActivity.removeActivity(this);
+        super.onDestroy();
     }
 }

@@ -14,11 +14,17 @@ public class AddressActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_address);
+        _CollectorActivity.addActivity(this);
         btnAddr=findViewById(R.id.btnAddr);
         btnAddr.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 startActivity(new Intent(AddressActivity.this, AddaddrActivity.class));
             }
         });
+    }
+    @Override
+    protected void onDestroy(){
+        _CollectorActivity.removeActivity(this);
+        super.onDestroy();
     }
 }

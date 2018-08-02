@@ -55,6 +55,7 @@ public class FindGetActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_get);
+        _CollectorActivity.addActivity(this);
 
         btnCancel = findViewById(R.id.btnCancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -121,23 +122,26 @@ public class FindGetActivity extends AppCompatActivity {
         String token=user.token;
 
         HashMap<String, String> map = new HashMap<>();
-        map.put("id",id);
-        map.put("token",token);
-        map.put("dstplace", receaddress);
-        map.put("srcplace", address);
-        map.put("rece_time", time);
-        map.put("size", size);
-        map.put("price", price);
-        map.put("rev_password", recepassword);
-        map.put("msg","我要漂亮小姐姐");
-        JSONObject jsonObject = new JSONObject(map);
-        String jsonStr = jsonObject.toString();
-        RequestBody body = RequestBody.create(JSON, jsonStr);
-        Request request = new Request.Builder()
-                .url("http://47.100.116.160:5000/item/propose")
-                .post(body)
-                .build();
-
+        if(id.equals("")||token.equals("")||receaddress.equals("")||address.equals("")||time.equals("")||size.equals("")||price.equals("")||recepassword.equals("")) {
+            Toast.makeText(FindGetActivity.this, "请将信息输入完整", Toast.LENGTH_LONG).show();
+            return;
+        }
+            map.put("id", id);
+            map.put("token", token);
+            map.put("dstplace", receaddress);
+            map.put("srcplace", address);
+            map.put("rece_time", time);
+            map.put("size", size);
+            map.put("price", price);
+            map.put("rev_password", recepassword);
+            map.put("msg", "我要漂亮小姐姐");
+            JSONObject jsonObject = new JSONObject(map);
+            String jsonStr = jsonObject.toString();
+            RequestBody body = RequestBody.create(JSON, jsonStr);
+            Request request = new Request.Builder()
+                    .url("http://47.100.116.160:5000/item/propose")
+                    .post(body)
+                    .build();
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -191,4 +195,9 @@ public class FindGetActivity extends AppCompatActivity {
    /* @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
     }*/
+   @Override
+   protected void onDestroy(){
+       _CollectorActivity.removeActivity(this);
+       super.onDestroy();
+   }
 }

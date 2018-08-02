@@ -18,6 +18,7 @@ public class SplashActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        _CollectorActivity.addActivity(this);
         //设置此界面为
         // 竖屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -47,5 +48,10 @@ public class SplashActivity extends AppCompatActivity{
         };
         //调度执行timerTask，第二个参数传入延迟时间（毫秒）
         timer.schedule(timerTask,3000);
+    }
+    @Override
+    protected void onDestroy(){
+        _CollectorActivity.removeActivity(this);
+        super.onDestroy();
     }
 }
