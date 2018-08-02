@@ -34,7 +34,8 @@
         <activity android:name=".HistoryActivity" />
         <activity android:name=".DetailActivity" />
         <activity android:name=".HistoryDetailActivity" />
-        <activity android:name=".CurrentOrderActivity"></activity>
+        <activity android:name=".CurrentOrderActivity" />
+        <activity android:name=".ProposalActivity"></activity>
     </application>
 
 </manifest>

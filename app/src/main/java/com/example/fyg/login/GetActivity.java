@@ -43,8 +43,6 @@ public class GetActivity extends AppCompatActivity implements NavigationView.OnN
         setContentView(R.layout.activity_get);
         _CollectorActivity.addActivity(this);
 
-        getInfo();
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -52,8 +50,11 @@ public class GetActivity extends AppCompatActivity implements NavigationView.OnN
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                postProposal();
+                postAccepter();
+                startActivity(new Intent(GetActivity.this, CurrentOrderActivity.class));
+                /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();*/
             }
         });
 
@@ -75,6 +76,7 @@ public class GetActivity extends AppCompatActivity implements NavigationView.OnN
         btn_help = findViewById(R.id.btn_help);
         btn_help.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                getInfo();
                 startActivity(new Intent(GetActivity.this, HelpGetActivity.class));
             }
         });
@@ -112,7 +114,9 @@ public class GetActivity extends AppCompatActivity implements NavigationView.OnN
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            postProposal();
+            postAccepter();
+            startActivity(new Intent(GetActivity.this, CurrentOrderActivity.class));
         }
 
         return super.onOptionsItemSelected(item);
@@ -189,10 +193,10 @@ public class GetActivity extends AppCompatActivity implements NavigationView.OnN
                         if (state.equals("success")) {
                             flag=true;
                             Order order=new Order();
+                            order.length=0;
                             JSONArray jsonArray=jsonObject.getJSONArray("data");
                             for(i = 0;i < jsonArray.length();i++){
                                 Order s=new Order();
-                                order.length=0;
                                 JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
                                 s.setDstplace(jsonObject1.getString("dstplace"));
                                 //System.out.println(s.dstplace);
@@ -239,6 +243,169 @@ public class GetActivity extends AppCompatActivity implements NavigationView.OnN
                     Looper.prepare();
                     //Toast.makeText(GetActivity.this, "服务器未响应" + response.body().string(), Toast.LENGTH_LONG).show();
                     Looper.loop();
+                }
+            }
+        });
+    }
+
+    public void postProposal(){
+        OkHttpClient client = new OkHttpClient();
+        User user=new User();
+        int i=user.id;
+        String id=Integer.toString(i);
+        String token=user.token;
+
+        HashMap<String, String> map = new HashMap<>();
+        //map.put("offset","0");
+        map.put("id", id);
+        map.put("token", token);
+        JSONObject jsonObject = new JSONObject(map);
+        String jsonStr = jsonObject.toString();
+        RequestBody body = RequestBody.create(JSON, jsonStr);
+        Request request = new Request.Builder()
+                .url("http://47.100.116.160:5000/item/proposer_user")
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Looper.prepare();
+                Looper.loop();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                int i;
+                if (response.isSuccessful()) {
+                    boolean flag = false;
+                    try {
+                        String str = response.body().string();
+
+                        JSONObject jsonObject = new JSONObject(str);
+                        String state = jsonObject.getString("state");
+
+                        if (state.equals("success")) {
+                            flag = true;
+                            Proposer proposer = new Proposer();
+                            proposer.length = 0;
+                            JSONArray jsonArray = jsonObject.getJSONArray("data");
+                            for (i = 0; i < jsonArray.length(); i++) {
+                                Proposer s = new Proposer();
+                                JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
+                                s.setExpress_state(jsonObject1.getString("express_state"));
+                                //System.out.println(s.express_state);
+                                s.setRece_time(jsonObject1.getString("rece_time"));
+                                //System.out.println(s.rece_time);
+                                s.setItem_id(jsonObject1.getString("item_id"));
+                                //System.out.println(s.item_id);
+                                if (s.express_state.equals(1)) {
+                                    s.setUser(jsonObject1.getString("username"));
+                                    //System.out.println(s.user);
+                                }
+                                /*s.setPrice(jsonObject1.getString("price"));
+                                //System.out.println(s.price);
+                                s.setProp_time(jsonObject1.getString("prop_time"));
+                                //System.out.println(s.prop_time);
+                                s.setRece_time(jsonObject1.getString("rece_time"));
+                                //System.out.println(s.rece_time);
+                                s.setRev_password(jsonObject1.getString("rev_password"));
+                                //System.out.println(s.rev_password);
+                                s.setSize(jsonObject1.getString("size"));
+                                //System.out.println(s.size);
+                                s.setSrcplace(jsonObject1.getString("srcplace"));
+                                //System.out.println(s.srcplace);
+                                s.setUsername(jsonObject1.getString("username"));
+                                s.setMsg(jsonObject1.getString("msg"));
+                                s.setEmail(jsonObject1.getString("email"));*/
+                                proposer.proposers[i] = s;
+                                proposer.length = i + 1;
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    public void postAccepter(){
+        OkHttpClient client = new OkHttpClient();
+        User user=new User();
+        int i=user.id;
+        String id=Integer.toString(i);
+        String token=user.token;
+
+        HashMap<String, String> map = new HashMap<>();
+        //map.put("offset","0");
+        map.put("id", id);
+        map.put("token", token);
+        JSONObject jsonObject = new JSONObject(map);
+        String jsonStr = jsonObject.toString();
+        RequestBody body = RequestBody.create(JSON, jsonStr);
+        Request request = new Request.Builder()
+                .url("http://47.100.116.160:5000/item/accepter_user")
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Looper.prepare();
+                Looper.loop();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                int i;
+                if (response.isSuccessful()) {
+                    boolean flag = false;
+                    try {
+                        String str = response.body().string();
+
+                        JSONObject jsonObject = new JSONObject(str);
+                        String state=jsonObject.getString("state");
+
+                        if (state.equals("success")) {
+                            flag=true;
+                            Accepter accepter=new Accepter();
+                            accepter.length=0;
+                            JSONArray jsonArray=jsonObject.getJSONArray("data");
+                            for(i = 0;i < jsonArray.length();i++){
+                                Accepter s=new Accepter();
+                                JSONObject jsonObject1 = (JSONObject) jsonArray.get(i);
+                                s.setUser(jsonObject1.getString("username"));
+                                System.out.println(s.user);
+                                s.setRece_time(jsonObject1.getString("rece_time"));
+                                System.out.println(s.rece_time);
+                                s.setItem_id(jsonObject1.getString("item_id"));
+                                System.out.println(s.item_id);
+                                s.setSrcplace(jsonObject1.getString("srcplace"));
+                                System.out.println(s.srcplace);
+                                s.setDstplace(jsonObject1.getString("dstplace"));
+                                System.out.println(s.dstplace);
+                                /*s.setProp_time(jsonObject1.getString("prop_time"));
+                                //System.out.println(s.prop_time);
+                                s.setRece_time(jsonObject1.getString("rece_time"));
+                                //System.out.println(s.rece_time);
+                                s.setRev_password(jsonObject1.getString("rev_password"));
+                                //System.out.println(s.rev_password);
+                                s.setSize(jsonObject1.getString("size"));
+                                //System.out.println(s.size);
+                                s.setSrcplace(jsonObject1.getString("srcplace"));
+                                //System.out.println(s.srcplace);
+                                s.setUsername(jsonObject1.getString("username"));
+                                s.setMsg(jsonObject1.getString("msg"));
+                                s.setEmail(jsonObject1.getString("email"));*/
+                                accepter.accepters[i]=s;
+                                accepter.length=i+1;
+                            }
+                            //System.out.println(proposer.length);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });

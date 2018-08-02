@@ -79,19 +79,6 @@ public class HelpGetActivity extends Activity implements SwipeRefreshLayout.OnRe
         for(int i=0;i<order.length;i++){
             list.add(i+1+"."+order.orders[i].rece_time+"       "+order.orders[i].srcplace+"       "+order.orders[i].dstplace);
         }
-        /*list.add("1."+orders.get(1).rece_time+"     "+orders.get(1).srcplace+"     "+orders.get(1).dstplace);
-        list.add("An Android Developer");
-        list.add("http://weibo.com/mcxiaobing");
-        list.add("http://git.oschina.net/MCXIAOBING");
-        list.add("https://github.com/QQ986945193");
-        list.add("An Android Developer");
-        list.add("http://weibo.com/mcxiaobing");
-        list.add("http://git.oschina.net/MCXIAOBING");
-        list.add("https://github.com/QQ986945193");
-        list.add("An Android Developer");
-        list.add("http://weibo.com/mcxiaobing");
-        list.add("http://git.oschina.net/MCXIAOBING");
-        list.add("https://github.com/QQ986945193");*/
         return list;
     }
 
@@ -125,7 +112,7 @@ public class HelpGetActivity extends Activity implements SwipeRefreshLayout.OnRe
             return;
         }
         list.add("  收货时间          取货地点        收货地点");
-        for(int i=0;i<''order.length;i++){
+        for(int i=0;i<order.length;i++){
             list.add(i+1+"."+order.orders[i].rece_time+"       "+order.orders[i].srcplace+"       "+order.orders[i].dstplace);
         }
         mListView.setAdapter(adapter);
